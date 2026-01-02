@@ -2,241 +2,354 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Aamena's Phonics Game</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Aamena's Word Spelling Game</title>
     <style>
-        /* CUSTOM HAND CURSOR applied to everything */
-        * { 
-            margin: 0; padding: 0; box-sizing: border-box; 
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
-            cursor: url('image_2a7f29.png'), auto !important;
         }
 
         body {
             font-family: 'Comic Sans MS', cursive, sans-serif;
-            background: #a29bfe;
-            height: 100vh; height: 100dvh;
-            display: flex; align-items: center; justify-content: center;
-            overflow: hidden; padding: 10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            touch-action: none;
+            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48"><text x="24" y="36" font-size="40" text-anchor="middle">👆</text></svg>'), auto;
         }
 
         .container {
             background: white;
-            border-radius: 30px; padding: 15px;
-            box-shadow: 0 15px 0px rgba(0,0,0,0.1), 0 30px 50px rgba(0,0,0,0.2);
-            max-width: 450px; width: 100%; height: 98%;
-            display: flex; flex-direction: column; position: relative;
-            border: 8px solid #fff;
-        }
-
-        h1 { text-align: center; color: #6c5ce7; font-size: 1.5em; margin: 5px 0; }
-
-        .menu-screen, .game-screen, .settings-screen { display: none; flex-direction: column; height: 100%; overflow: hidden; }
-        .active { display: flex !important; }
-
-        /* FANCY COMPLETION BOX (Funky Text Box) */
-        .overlay {
-            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(255,255,255,0.98); display: none;
-            flex-direction: column; align-items: center; justify-content: center;
-            z-index: 1000; border-radius: 30px; text-align: center;
+            border-radius: 20px;
             padding: 20px;
-            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            width: 100%;
+            height: 100vh;
+            max-width: 500px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
         }
-        @keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        
-        .fancy-box {
+
+        h1 {
+            text-align: center;
+            color: #667eea;
+            font-size: 1.8em;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .menu-screen, .game-screen {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .menu-screen.active, .game-screen.active {
+            display: flex;
+        }
+
+        .menu-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .logo {
+            font-size: 5em;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .start-btn {
+            padding: 20px 50px;
             background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            padding: 30px; border-radius: 25px; color: white;
-            box-shadow: 0 10px 0px #d63031; border: 5px solid white;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 1.8em;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            animation: pulse 2s infinite;
         }
 
-        /* LEVEL TILES (English Menu) */
-        .level-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 5px; flex-grow: 1; overflow-y: auto; }
-        .level-card {
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .game-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .top-section {
+            text-align: center;
+        }
+
+        .progress {
+            color: #764ba2;
+            font-size: 1em;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .word-image {
+            font-size: 4em;
+            margin: 10px 0;
+        }
+
+        .instruction {
+            color: #764ba2;
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .speak-btn {
             background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            border-radius: 15px; padding: 12px; color: white; border: none;
-            box-shadow: 0 5px 0px #d63031; text-align: center; font-weight: bold;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 2em;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            margin: 0 auto 10px;
+            display: block;
         }
 
-        /* VOICE LIST */
-        .voice-list { flex-grow: 1; overflow-y: auto; margin: 10px 0; border: 2px solid #eee; border-radius: 15px; padding: 5px; }
-        .voice-option { padding: 10px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; font-size: 0.9em; }
-        .voice-option.selected { background: #efeeff; border-left: 4px solid #6c5ce7; }
+        .target-boxes {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
 
-        /* GAMEPLAY (English Left-to-Right) */
-        .word-image { text-align: center; font-size: 4.5em; margin: 10px 0; }
-        .target-boxes { display: flex; justify-content: center; gap: 8px; margin: 15px 0; flex-wrap: wrap;}
         .target-box {
-            width: 55px; height: 75px; border: 3px dashed #dfe6e9; border-radius: 12px;
-            background: #f9f9f9; display: flex; align-items: center; justify-content: center;
-            font-size: 2.2em; font-weight: 900; color: #6c5ce7;
+            width: 70px;
+            height: 80px;
+            border: 4px dashed #764ba2;
+            border-radius: 15px;
+            background: #f0f0ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+            transition: all 0.3s ease;
+            touch-action: none;
         }
-        .target-box.filled { border: 3px solid #6c5ce7; background: #fff; animation: bounce 0.4s; }
+
+        .target-box.drag-over {
+            background: #e0e0ff;
+            border-color: #667eea;
+            transform: scale(1.1);
+        }
+
+        .target-box.filled {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            border-style: solid;
+        }
+
+        .letter-tiles {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 20px 0;
+            min-height: 85px;
+        }
+
         .letter-tile {
-            width: 60px; height: 60px; background: #6c5ce7; border-radius: 15px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 2.2em; font-weight: 900; color: white;
-            box-shadow: 0 6px 0px #4834d4;
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            user-select: none;
+            touch-action: none;
         }
-        .hidden { visibility: hidden; opacity: 0; }
 
-        .btn-main { padding: 12px 30px; background: #00b894; color: white; border: none; border-radius: 50px; font-weight: 900; box-shadow: 0 5px 0px #009475; }
-        .btn-sec { background: #dfe6e9; color: #636e72; padding: 8px 15px; border-radius: 12px; border: none; font-size: 0.9em; font-weight: bold; }
+        .letter-tile.dragging {
+            opacity: 0.3;
+            transform: scale(0.8);
+        }
 
-        @keyframes bounce { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+        .letter-tile.hidden {
+            opacity: 0;
+            transform: scale(0);
+            pointer-events: none;
+        }
+
+        .success-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .success-overlay.show {
+            display: flex;
+        }
+
+        .success-content {
+            background: white;
+            padding: 40px;
+            border-radius: 30px;
+            text-align: center;
+            animation: bounceIn 0.5s ease;
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .success-emoji {
+            font-size: 5em;
+            animation: rotate 1s ease;
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .success-text {
+            font-size: 2em;
+            color: #4CAF50;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .btn-container {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            padding: 10px 0;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            flex: 1;
+        }
     </style>
 </head>
 <body>
-
     <div class="container">
-        <div class="overlay" id="successOverlay">
-            <div class="fancy-box">
-                <div style="font-size: 4em;">🏆</div>
-                <h2 style="margin-bottom: 10px;">AMAZING JOB!</h2>
-                <p id="successText" style="margin-bottom: 20px; font-weight: bold;"></p>
-                <button class="btn-main" onclick="location.reload()">Play Again</button>
-            </div>
-        </div>
-
-        <div class="settings-screen" id="settingsScreen">
-            <h1>Select Urdu Voice</h1>
-            <p style="font-size: 0.8em; text-align: center; color: #666;">Choose a voice for Urdu translations:</p>
-            <div class="voice-list" id="voiceList"></div>
-            <button class="btn-main" onclick="hideSettings()">Save & Close</button>
-        </div>
-
         <div class="menu-screen active" id="menuScreen">
-            <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                <h1>Aamena's Phonics</h1>
-                <button class="btn-sec" onclick="showSettings()">⚙️ Voice</button>
+            <h1>🌟 Aamena's Word Spelling Game 🌟</h1>
+            <div class="menu-content">
+                <div class="logo">📚✨</div>
+                <button class="start-btn" id="startBtn">شروع کریں<br>(Start)</button>
             </div>
-            <div class="level-grid" id="levelGrid"></div>
         </div>
 
         <div class="game-screen" id="gameScreen">
-            <div style="display:flex; justify-content: space-between; align-items: center;">
-                <button class="btn-sec" onclick="location.reload()">⬅ Back</button>
-                <div id="progress" style="font-weight: 800; color: #b2bec3;"></div>
+            <div class="game-content">
+                <div class="top-section">
+                    <h1>🌟 Aamena's Game 🌟</h1>
+                    <div class="progress" id="progress"></div>
+                    <div class="word-image" id="wordImage">📝</div>
+                    <button class="speak-btn" id="speakBtn">🔊</button>
+                    <div class="instruction" id="instruction"></div>
+                </div>
+                
+                <div class="target-boxes" id="targetBoxes"></div>
+                <div class="letter-tiles" id="letterTiles"></div>
+
+                <div class="btn-container">
+                    <button class="btn" id="nextBtn">اگلا لفظ →</button>
+                </div>
             </div>
-            <div class="word-image" id="wordImage"></div>
-            <div style="text-align: center; margin-bottom: 5px;">
-                <button id="speakBtn" style="border:none; background:#fab1a0; color:white; width:50px; height:50px; border-radius:50%; font-size: 1.5em; box-shadow: 0 4px 0px #e17055;">🔊</button>
-            </div>
-            <div class="target-boxes" id="targetBoxes"></div>
-            <div class="letter-tiles" id="letterTiles" style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:auto; padding-bottom:20px;"></div>
+        </div>
+    </div>
+
+    <div class="success-overlay" id="successOverlay">
+        <div class="success-content">
+            <div class="success-emoji">🎉</div>
+            <div class="success-text" id="successText">شاباش آمنہ!</div>
         </div>
     </div>
 
     <script>
-        // Reverted to English Word Database
-        const wordDatabase = {
-            'AD Family': [{word:'BAD', emoji:'👎'},{word:'DAD', emoji:'👨'},{word:'SAD', emoji:'😢'}],
-            'AM Family': [{word:'JAM', emoji:'🍓'},{word:'HAM', emoji:'🍖'},{word:'RAM', emoji:'🐏'}],
-            'AT Family': [{word:'CAT', emoji:'🐱'},{word:'HAT', emoji:'🎩'},{word:'BAT', emoji:'🦇'}],
-            'AN Family': [{word:'VAN', emoji:'🚐'},{word:'FAN', emoji:'🪭'},{word:'CAN', emoji:'🥫'}],
-            'AP Family': [{word:'CAP', emoji:'🧢'},{word:'MAP', emoji:'🗺️'},{word:'TAP', emoji:'🚰'}],
-            'Hard Words': [{word:'COMBAT', emoji:'⚔️'},{word:'ACROBAT', emoji:'🤸'}]
-        };
-
-        let currentWords = [], currentIdx = 0, targetWord = "", attempt = [], draggedTile = null, selectedVoice = null;
-
-        // VOICE SELECTOR (Filtered for Urdu/Hindi support)
-        function loadVoices() {
-            const voices = window.speechSynthesis.getVoices();
-            const list = document.getElementById('voiceList');
-            list.innerHTML = '';
-            
-            // Prioritize Urdu or Hindi voices for the accent
-            const filtered = voices.filter(v => v.lang.includes('ur') || v.lang.includes('hi'));
-
-            filtered.forEach(voice => {
-                const div = document.createElement('div');
-                div.className = `voice-option ${selectedVoice?.name === voice.name ? 'selected' : ''}`;
-                div.innerHTML = `<span>${voice.name} (${voice.lang})</span><button class="btn-sec" onclick="testVoice('${voice.name}')">▶</button>`;
-                div.onclick = (e) => { if(e.target.tagName !== 'BUTTON') { selectedVoice = voice; loadVoices(); } };
-                list.appendChild(div);
-            });
-        }
-        window.speechSynthesis.onvoiceschanged = loadVoices;
-
-        function testVoice(name) {
-            const v = window.speechSynthesis.getVoices().find(v => v.name === name);
-            const m = new SpeechSynthesisUtterance("Hello Aamena, how do I sound?");
-            m.voice = v; window.speechSynthesis.speak(m);
-        }
-
-        function speak(text) {
-            window.speechSynthesis.cancel();
-            const msg = new SpeechSynthesisUtterance(text);
-            if (selectedVoice) msg.voice = selectedVoice;
-            msg.rate = 0.8; 
-            window.speechSynthesis.speak(msg);
-        }
-
-        function showSettings() { document.getElementById('menuScreen').classList.remove('active'); document.getElementById('settingsScreen').classList.add('active'); loadVoices(); }
-        function hideSettings() { document.getElementById('settingsScreen').classList.remove('active'); document.getElementById('menuScreen').classList.add('active'); }
-
-        // MENU BUILDER (English Labels)
-        const grid = document.getElementById('levelGrid');
-        Object.keys(wordDatabase).forEach(family => {
-            const btn = document.createElement('div');
-            btn.className = 'level-card';
-            btn.innerHTML = `<div style="font-size:1.8em">${wordDatabase[family][0].emoji}</div><div>${family}</div>`;
-            btn.onclick = () => {
-                currentWords = [...wordDatabase[family]]; currentIdx = 0;
-                document.getElementById('menuScreen').classList.remove('active');
-                document.getElementById('gameScreen').classList.add('active');
-                loadWord();
-            };
-            grid.appendChild(btn);
-        });
-
-        function loadWord() {
-            if (currentIdx >= currentWords.length) {
-                document.getElementById('successText').textContent = "You finished all the words!";
-                document.getElementById('successOverlay').style.display = 'flex';
-                speak("Congratulations Aamena!"); return;
-            }
-            const data = currentWords[currentIdx];
-            targetWord = data.word; attempt = new Array(targetWord.length).fill(null);
-            document.getElementById('wordImage').textContent = data.emoji;
-            document.getElementById('progress').textContent = `${currentIdx + 1} / ${currentWords.length}`;
-
-            const tBox = document.getElementById('targetBoxes'); tBox.innerHTML = '';
-            targetWord.split('').forEach((_, i) => {
-                const b = document.createElement('div'); b.className = 'target-box'; b.dataset.idx = i;
-                b.ondragover = (e) => e.preventDefault();
-                b.ondrop = (e) => handleDrop(b, draggedTile);
-                tBox.appendChild(b);
-            });
-
-            const lTiles = document.getElementById('letterTiles'); lTiles.innerHTML = '';
-            targetWord.split('').sort(() => Math.random() - 0.5).forEach(char => {
-                const t = document.createElement('div'); t.className = 'letter-tile'; t.textContent = char;
-                t.draggable = true; t.ondragstart = () => { draggedTile = t; };
-                t.ontouchstart = () => { draggedTile = t; };
-                t.ontouchend = (e) => {
-                    const touch = e.changedTouches[0];
-                    const box = document.elementFromPoint(touch.clientX, touch.clientY)?.closest('.target-box');
-                    if(box) handleDrop(box, t);
-                };
-                lTiles.appendChild(t);
-            });
-            speak(targetWord);
-        }
-
-        function handleDrop(box, tile) {
-            if (!tile || box.textContent) return;
-            box.textContent = tile.textContent; box.classList.add('filled'); tile.classList.add('hidden');
-            attempt[box.dataset.idx] = tile.textContent;
-            if (attempt.every(l => l !== null)) {
-                if(attempt.join('') === targetWord) { speak("Well done!"); setTimeout(() => { currentIdx++; loadWord(); }, 1200); }
-                else { speak("Try again"); setTimeout(loadWord, 800); }
-            }
-        }
-
-        document.getElementById('speakBtn').onclick = () => speak(targetWord);
+        const w=[{word:'AT',emoji:'📍',urdu:'ایٹ'},{word:'AN',emoji:'🅰️',urdu:'اِن'},{word:'AM',emoji:'🌅',urdu:'ایم'},{word:'BAT',emoji:'🦇',urdu:'بَیٹ'},{word:'CAT',emoji:'🐱',urdu:'کَیٹ'},{word:'FAT',emoji:'🎈',urdu:'فَیٹ'},{word:'HAT',emoji:'🎩',urdu:'ہَیٹ'},{word:'MAT',emoji:'🧘',urdu:'مَیٹ'},{word:'PAT',emoji:'👋',urdu:'پَیٹ'},{word:'RAT',emoji:'🐀',urdu:'رَیٹ'},{word:'SAT',emoji:'🪑',urdu:'سَیٹ'},{word:'VAT',emoji:'🪣',urdu:'وَیٹ'},{word:'TAT',emoji:'✏️',urdu:'ٹَیٹ'},{word:'BAN',emoji:'🚫',urdu:'بَین'},{word:'CAN',emoji:'🥫',urdu:'کَین'},{word:'DAN',emoji:'👨',urdu:'ڈَین'},{word:'FAN',emoji:'🪭',urdu:'فَین'},{word:'MAN',emoji:'👨',urdu:'مَین'},{word:'PAN',emoji:'🍳',urdu:'پَین'},{word:'RAN',emoji:'🏃',urdu:'رَین'},{word:'TAN',emoji:'🟤',urdu:'ٹَین'},{word:'VAN',emoji:'🚐',urdu:'وَین'},{word:'BAM',emoji:'💥',urdu:'بَیم'},{word:'HAM',emoji:'🍖',urdu:'ہَیم'},{word:'JAM',emoji:'🍓',urdu:'جَیم'},{word:'PAM',emoji:'👩',urdu:'پَیم'},{word:'RAM',emoji:'🐏',urdu:'رَیم'},{word:'SAM',emoji:'👨',urdu:'سَیم'},{word:'YAM',emoji:'🍠',urdu:'یَیم'},{word:'CAP',emoji:'🧢',urdu:'کَیپ'},{word:'GAP',emoji:'↔️',urdu:'گَیپ'},{word:'LAP',emoji:'🏁',urdu:'لَیپ'},{word:'MAP',emoji:'🗺️',urdu:'مَیپ'},{word:'NAP',emoji:'😴',urdu:'نَیپ'},{word:'RAP',emoji:'🎤',urdu:'رَیپ'},{word:'SAP',emoji:'🌳',urdu:'سَیپ'},{word:'TAP',emoji:'🚰',urdu:'ٹَیپ'},{word:'ZAP',emoji:'⚡',urdu:'زَیپ'},{word:'BAG',emoji:'👜',urdu:'بَیگ'},{word:'GAG',emoji:'🤐',urdu:'گَیگ'},{word:'HAG',emoji:'🧙',urdu:'ہَیگ'},{word:'LAG',emoji:'🐌',urdu:'لَیگ'},{word:'NAG',emoji:'😠',urdu:'نَیگ'},{word:'RAG',emoji:'🧹',urdu:'رَیگ'},{word:'SAG',emoji:'📉',urdu:'سَیگ'},{word:'TAG',emoji:'🏷️',urdu:'ٹَیگ'},{word:'WAG',emoji:'🐕',urdu:'وَیگ'},{word:'BAD',emoji:'👎',urdu:'بَیڈ'},{word:'DAD',emoji:'👨',urdu:'ڈَیڈ'},{word:'HAD',emoji:'✅',urdu:'ہَیڈ'},{word:'LAD',emoji:'👦',urdu:'لَیڈ'},{word:'MAD',emoji:'😠',urdu:'مَیڈ'},{word:'PAD',emoji:'📝',urdu:'پَیڈ'},{word:'SAD',emoji:'😢',urdu:'سَیڈ'},{word:'PLAN',emoji:'📋',urdu:'پلَین'},{word:'SCAN',emoji:'📱',urdu:'سکَین'},{word:'SLAM',emoji:'🚪',urdu:'سلَیم'},{word:'GRAM',emoji:'⚖️',urdu:'گرَیم'},{word:'CLAP',emoji:'👏',urdu:'کلَیپ'},{word:'SNAP',emoji:'📸',urdu:'سنَیپ'},{word:'TRAP',emoji:'🪤',urdu:'ٹرَیپ'},{word:'BRAG',emoji:'😎',urdu:'برَیگ'},{word:'FLAG',emoji:'🚩',urdu:'فلَیگ'},{word:'BRAT',emoji:'😤',urdu:'برَیٹ'},{word:'CHAT',emoji:'💬',urdu:'چَیٹ'},{word:'FLAT',emoji:'📏',urdu:'فلَیٹ'},{word:'GNAT',emoji:'🦟',urdu:'نَیٹ'},{word:'PLAT',emoji:'🗺️',urdu:'پلَیٹ'},{word:'SCAT',emoji:'🏃',urdu:'سکَیٹ'},{word:'SLAT',emoji:'🪟',urdu:'سلَیٹ'},{word:'SPAT',emoji:'💢',urdu:'سپَیٹ'},{word:'STAT',emoji:'📊',urdu:'سٹَیٹ'},{word:'THAT',emoji:'👈',urdu:'دَیٹ'},{word:'COMBAT',emoji:'⚔️',urdu:'کمبَیٹ'},{word:'FORMAT',emoji:'📄',urdu:'فارمَیٹ'},{word:'TOMCAT',emoji:'🐈',urdu:'ٹَم کَیٹ'},{word:'BOBCAT',emoji:'🐆',urdu:'بَب کَیٹ'},{word:'MUSKRAT',emoji:'🐀',urdu:'مَسک رَیٹ'},{word:'HABITAT',emoji:'🏠',urdu:'ہَبی ٹَیٹ'},{word:'ACROBAT',emoji:'🤸',urdu:'ایکرو بَیٹ'}];
+        let i=0,c=[],t=null;
+        const m=document.getElementById('menuScreen'),g=document.getElementById('gameScreen'),s=document.getElementById('startBtn'),b=document.getElementById('targetBoxes'),l=document.getElementById('letterTiles'),o=document.getElementById('successOverlay'),x=document.getElementById('successText'),n=document.getElementById('instruction'),e=document.getElementById('wordImage'),p=document.getElementById('progress'),k=document.getElementById('speakBtn'),z=document.getElementById('nextBtn'),a=new(window.AudioContext||window.webkitAudioContext)();
+        
+        function speak(txt,isW=false){if('speechSynthesis'in window){speechSynthesis.cancel();const sp=()=>{let t=txt;if(isW){const d=w[i];t=`آمنہ، یہ ${d.urdu} ہے۔ ${txt}`;}const u=new SpeechSynthesisUtterance(t);u.rate=0.8;u.pitch=1.2;u.volume=1;u.lang='ur-PK';const v=speechSynthesis.getVoices();const uv=v.find(voice=>voice.lang.includes('ur')||voice.lang.includes('UR'));if(uv)u.voice=uv;speechSynthesis.speak(u);};const v=speechSynthesis.getVoices();if(v.length===0)speechSynthesis.onvoiceschanged=sp;else sp();}}
+        
+        function playSound(){const notes=[[523.25,0.15],[659.25,0.15],[783.99,0.15],[1046.50,0.3]];notes.forEach((note,idx)=>{const[freq,dur]=note;const osc=a.createOscillator();const gain=a.createGain();osc.connect(gain);gain.connect(a.destination);osc.frequency.setValueAtTime(freq,a.currentTime+idx*0.15);osc.type='triangle';gain.gain.setValueAtTime(0.3,a.currentTime+idx*0.15);gain.gain.exponentialRampToValueAtTime(0.01,a.currentTime+idx*0.15+dur);osc.start(a.currentTime+idx*0.15);osc.stop(a.currentTime+idx*0.15+dur);});}
+        
+        function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+        
+        function load(idx){if(idx>=w.length){x.textContent='🏆 مبارک ہو آمنہ! 🏆';o.classList.add('show');speak('واہ آمنہ! تم نے بہت اچھا کیا۔');z.style.display='none';return;}const d=w[idx];const word=d.word;const len=word.length;c=new Array(len).fill('');o.classList.remove('show');e.textContent=d.emoji;n.textContent=`لفظ: ${word}`;p.textContent=`${idx+1} / ${w.length}`;b.innerHTML='';for(let j=0;j<len;j++){const box=document.createElement('div');box.className='target-box';box.dataset.position=j;b.appendChild(box);}const letters=word.split('');const sh=shuffle(letters);if(sh.join('')===word&&len>2)sh.reverse();l.innerHTML='';sh.forEach((letter,idx)=>{const tile=document.createElement('div');tile.className='letter-tile';tile.dataset.letter=letter;tile.dataset.tileId=idx;tile.textContent=letter;tile.addEventListener('touchstart',tStart,{passive:false});tile.addEventListener('touchmove',tMove,{passive:false});tile.addEventListener('touchend',tEnd,{passive:false});tile.addEventListener('mousedown',mDown);l.appendChild(tile);});setTimeout(()=>speak(word,true),500);}
+        
+        function tStart(e){e.preventDefault();t=e.target;t.classList.add('dragging');}
+        
+        function tMove(e){e.preventDefault();if(!t)return;const touch=e.touches[0];const el=document.elementFromPoint(touch.clientX,touch.clientY);document.querySelectorAll('.target-box').forEach(box=>box.classList.remove('drag-over'));if(el&&el.classList.contains('target-box'))el.classList.add('drag-over');}
+        
+        function tEnd(e){e.preventDefault();if(!t)return;const touch=e.changedTouches[0];const el=document.elementFromPoint(touch.clientX,touch.clientY);t.classList.remove('dragging');if(el&&el.classList.contains('target-box')&&!el.textContent){const letter=t.dataset.letter;const pos=parseInt(el.dataset.position);el.textContent=letter;el.classList.add('filled');el.classList.remove('drag-over');c[pos]=letter;t.classList.add('hidden');check();}document.querySelectorAll('.target-box').forEach(box=>box.classList.remove('drag-over'));t=null;}
+        
+        function mDown(e){t=e.target;t.classList.add('dragging');const mv=(e)=>{const el=document.elementFromPoint(e.clientX,e.clientY);document.querySelectorAll('.target-box').forEach(box=>box.classList.remove('drag-over'));if(el&&el.classList.contains('target-box'))el.classList.add('drag-over');};const up=(e)=>{const el=document.elementFromPoint(e.clientX,e.clientY);t.classList.remove('dragging');if(el&&el.classList.contains('target-box')&&!el.textContent){const letter=t.dataset.letter;const pos=parseInt(el.dataset.position);el.textContent=letter;el.classList.add('filled');el.classList.remove('drag-over');c[pos]=letter;t.classList.add('hidden');check();}document.querySelectorAll('.target-box').forEach(box=>box.classList.remove('drag-over'));document.removeEventListener('mousemove',mv);document.removeEventListener('mouseup',up);t=null;};document.addEventListener('mousemove',mv);document.addEventListener('mouseup',up);}
+        
+        function check(){if(c.every(letter=>letter!=='')){const correct=w[i].word;const d=w[i];if(c.join('')===correct){setTimeout(()=>{x.textContent=`شاباش آمنہ! ${d.urdu}`;o.classList.add('show');playSound();setTimeout(()=>speak(`بہت خوب آمنہ! تم نے ${d.urdu} صحیح لکھا!`),300);setTimeout(()=>{o.classList.remove('show');i++;load(i);},3000);},300);}else{setTimeout(()=>{document.querySelectorAll('.target-box').forEach(box=>box.style.animation='shake 0.5s');speak('آمنہ، دوبارہ کوشش کریں');setTimeout(()=>reset(),500);},300);}}}
+        
+        function reset(){const len=w[i].word.length;c=new Array(len).fill('');document.querySelectorAll('.target-box').forEach(box=>{box.textContent='';box.classList.remove('filled');box.style.animation='';});document.querySelectorAll('.letter-tile').forEach(tile=>tile.classList.remove('hidden'));}
+        
+        s.addEventListener('click',()=>{m.classList.remove('active');g.classList.add('active');speak('آمنہ، آؤ الفاظ سیکھیں!');load(0);});
+        k.addEventListener('click',()=>{if(i<w.length)speak(w[i].word,true);});
+        z.addEventListener('click',()=>{i++;load(i);});
+        if('speechSynthesis'in window)speechSynthesis.getVoices();
     </script>
 </body>
 </html>
