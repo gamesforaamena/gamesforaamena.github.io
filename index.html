@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Aamena's Word Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            touch-action: none;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            width: 100%;
+            height: 100vh;
+            max-width: 500px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        h1 {
+            text-align: center;
+            color: #667eea;
+            font-size: 1.8em;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .menu-screen, .game-screen {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .menu-screen.active, .game-screen.active {
+            display: flex;
+        }
+
+        .menu-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .logo {
+            font-size: 5em;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .welcome-text {
+            font-size: 2em;
+            color: #764ba2;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .language-selector {
+            background: white;
+            border: 4px solid #667eea;
+            border-radius: 20px;
+            padding: 20px;
+            width: 90%;
+            max-width: 300px;
+        }
+
+        .lang-title {
+            text-align: center;
+            color: #764ba2;
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .lang-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .lang-btn {
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 1.3em;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transition: transform 0.2s;
+        }
+
+        .lang-btn:active {
+            transform: scale(0.95);
+        }
+
+        .lang-btn.selected {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            box-shadow: 0 8px 20px rgba(240, 147, 251, 0.4);
+        }
+
+        .start-btn {
+            padding: 20px 50px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 2em;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+        }
+
+        .game-content {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .top-section {
+            flex-shrink: 0;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .progress {
+            color: #764ba2;
+            font-size: 1.1em;
+            font-weight: bold;
+            margin: 8px 0;
+        }
+
+        .word-image {
+            font-size: 7em;
+            margin: 15px 0;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        .speak-btn {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border: none;
+            border-radius: 50%;
+            width: 80px;
+            height: 80px;
+            font-size: 2.5em;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+            margin: 10px auto;
+            transition: transform 0.2s;
+        }
+
+        .speak-btn:active {
+            transform: scale(0.95);
+        }
+
+        .speak-btn.speaking {
+            animation: pulseBtn 0.5s infinite;
+        }
+
+        @keyframes pulseBtn {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+        }
+
+        .instruction {
+            font-size: 1.5em;
+            color: #764ba2;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .middle-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 20px;
+            overflow-y: auto;
+            padding: 10px 0;
+        }
+
+        .target-boxes {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .target-box {
+            width: 70px;
+            height: 70px;
+            border: 4px dashed #667eea;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #764ba2;
+            background: #f8f9fa;
+            transition: all 0.3s;
+        }
+
+        .target-box.filled {
+            border: 4px solid #4CAF50;
+            background: #e8f5e9;
+        }
+
+        .target-box.drag-over {
+            background: #bbdefb;
+            border-color: #2196F3;
+            transform: scale(1.1);
+        }
+
+        .letter-tiles {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .letter-tile {
+            width: 75px;
+            height: 75px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5em;
+            font-weight: bold;
+            cursor: move;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+            transition: all 0.2s;
+            user-select: none;
+        }
+
+        .letter-tile:active {
+            transform: scale(1.1);
+        }
+
+        .letter-tile.dragging {
+            opacity: 0.5;
+            transform: scale(0.95);
+        }
+
+        .letter-tile.hidden {
+            visibility: hidden;
+        }
+
+        .success-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(76, 175, 80, 0.95);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .success-overlay.show {
+            display: flex;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .success-content {
+            text-align: center;
+            color: white;
+        }
+
+        .success-emoji {
+            font-size: 10em;
+            animation: rotate 1s ease;
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .success-text {
+            font-size: 2.2em;
+            color: white;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .btn-container {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            padding: 12px 0;
+            flex-shrink: 0;
+        }
+
+        .btn {
+            padding: 15px 25px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            flex: 1;
+        }
+
+        .ai-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #00d2ff 0%, #3a47d5 100%);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 12px;
+            font-size: 0.6em;
+            margin-left: 8px;
+            animation: glow 2s infinite;
+        }
+
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 5px rgba(0, 210, 255, 0.5); }
+            50% { box-shadow: 0 0 15px rgba(0, 210, 255, 0.8); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="menu-screen active" id="menuScreen">
+            <h1>🌟 Aamena's Word Game 🌟</h1>
+            <div class="menu-content">
+                <div class="logo">📚✨🎮</div>
+                <div class="welcome-text">Let's Learn Words!</div>
+                
+                <div class="language-selector">
+                    <div class="lang-title">Choose Language:</div>
+                    <div class="lang-buttons">
+                        <button class="lang-btn selected" data-lang="ur" id="urduBtn">
+                            🇵🇰 اردو
+                        </button>
+                        <button class="lang-btn" data-lang="en" id="englishBtn">
+                            🇬🇧 English
+                        </button>
+                    </div>
+                </div>
+                
+                <button class="start-btn" id="startBtn">START! 🚀</button>
+            </div>
+        </div>
+
+        <div class="game-screen" id="gameScreen">
+            <div class="game-content">
+                <div class="top-section">
+                    <h1>🌟 Aamena's Game 🌟</h1>
+                    <div class="progress" id="progress"></div>
+                    <div class="word-image" id="wordImage">📝</div>
+                    <button class="speak-btn" id="speakBtn">🔊</button>
+                    <div class="instruction" id="instruction"></div>
+                </div>
+                
+                <div class="middle-section">
+                    <div class="target-boxes" id="targetBoxes"></div>
+                    <div class="letter-tiles" id="letterTiles"></div>
+                </div>
+
+                <div class="btn-container">
+                    <button class="btn" id="nextBtn">Next Word →</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="success-overlay" id="successOverlay">
+        <div class="success-content">
+            <div class="success-emoji">🎉</div>
+            <div class="success-text" id="successText">Great Job Aamena!</div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // 🔑 HARDCODED API KEYS (Replace these!)
+        // ============================================
+        const GEMINI_API_KEY = 'AIzaSyBX8rSmB8k8VN2EbrsOlsaEW-7m8whkr70';  // Get from: https://aistudio.google.com/app/apikey
+        const ELEVEN_LABS_KEY = '';  // Optional: For better AI voice (https://elevenlabs.io)
+        // ============================================
+
+        const initialWords = [
+            {word:'AT',emoji:'📍',urdu:'ایٹ'},
+            {word:'AN',emoji:'🅰️',urdu:'اِن'},
+            {word:'AM',emoji:'🌅',urdu:'ایم'},
+            {word:'BAT',emoji:'🦇',urdu:'بَیٹ'},
+            {word:'CAT',emoji:'🐱',urdu:'کَیٹ'},
+            {word:'DOG',emoji:'🐕',urdu:'ڈاگ'},
+            {word:'FAT',emoji:'🎈',urdu:'فَیٹ'},
+            {word:'HAT',emoji:'🎩',urdu:'ہَیٹ'},
+            {word:'MAT',emoji:'🧘',urdu:'مَیٹ'},
+            {word:'PAT',emoji:'👋',urdu:'پَیٹ'},
+            {word:'RAT',emoji:'🐀',urdu:'رَیٹ'},
+            {word:'SAT',emoji:'🪑',urdu:'سَیٹ'},
+            {word:'BAN',emoji:'🚫',urdu:'بَین'},
+            {word:'CAN',emoji:'🥫',urdu:'کَین'},
+            {word:'FAN',emoji:'🪭',urdu:'فَین'},
+            {word:'MAN',emoji:'👨',urdu:'مَین'},
+            {word:'PAN',emoji:'🍳',urdu:'پَین'},
+            {word:'RAN',emoji:'🏃',urdu:'رَین'},
+            {word:'VAN',emoji:'🚐',urdu:'وَین'},
+            {word:'BAG',emoji:'👜',urdu:'بَیگ'}
+        ];
+
+        let words = [...initialWords];
+        let currentIndex = 0;
+        let currentAttempt = [];
+        let draggedTile = null;
+        let selectedLang = 'ur';
+        let audioContext = new(window.AudioContext || window.webkitAudioContext)();
+        let wordsCompleted = 0;
+        let difficultyLevel = 1;
+        let isGeneratingWords = false;
+
+        const menuScreen = document.getElementById('menuScreen');
+        const gameScreen = document.getElementById('gameScreen');
+        const startBtn = document.getElementById('startBtn');
+        const targetBoxes = document.getElementById('targetBoxes');
+        const letterTiles = document.getElementById('letterTiles');
+        const successOverlay = document.getElementById('successOverlay');
+        const successText = document.getElementById('successText');
+        const instruction = document.getElementById('instruction');
+        const wordImage = document.getElementById('wordImage');
+        const progress = document.getElementById('progress');
+        const speakBtn = document.getElementById('speakBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const urduBtn = document.getElementById('urduBtn');
+        const englishBtn = document.getElementById('englishBtn');
+
+        // Language selection
+        urduBtn.addEventListener('click', () => {
+            selectedLang = 'ur';
+            urduBtn.classList.add('selected');
+            englishBtn.classList.remove('selected');
+        });
+
+        englishBtn.addEventListener('click', () => {
+            selectedLang = 'en';
+            englishBtn.classList.add('selected');
+            urduBtn.classList.remove('selected');
+        });
+
+        // ElevenLabs TTS (Premium AI Voice)
+        async function speakWithElevenLabs(text, isWord = false) {
+            if (!ELEVEN_LABS_KEY) {
+                return speakWithBrowser(text, isWord);
+            }
+
+            try {
+                speakBtn.classList.add('speaking');
+                
+                let textToSpeak = text;
+                const wordData = words[currentIndex];
+
+                if (isWord && wordData) {
+                    if (selectedLang === 'ur') {
+                        textToSpeak = `آمنہ، یہ ${wordData.urdu} ہے۔ ${text} کو لکھیں`;
+                    } else {
+                        textToSpeak = `Aamena, this is ${text}. Spell ${text}`;
+                    }
+                }
+
+                const voiceId = '21m00Tcm4TlvDq8ikWAM'; // Rachel (multilingual)
+
+                const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'audio/mpeg',
+                        'Content-Type': 'application/json',
+                        'xi-api-key': ELEVEN_LABS_KEY
+                    },
+                    body: JSON.stringify({
+                        text: textToSpeak,
+                        model_id: 'eleven_multilingual_v2',
+                        voice_settings: {
+                            stability: 0.5,
+                            similarity_boost: 0.75
+                        }
+                    })
+                });
+
+                if (response.ok) {
+                    const audioBlob = await response.blob();
+                    const audioUrl = URL.createObjectURL(audioBlob);
+                    const audio = new Audio(audioUrl);
+                    
+                    audio.onended = () => {
+                        speakBtn.classList.remove('speaking');
+                        URL.revokeObjectURL(audioUrl);
+                    };
+                    
+                    await audio.play();
+                } else {
+                    throw new Error('ElevenLabs error');
+                }
+
+            } catch (error) {
+                console.log('Using browser voice');
+                speakWithBrowser(text, isWord);
+            }
+        }
+
+        // Browser TTS (Fallback)
+        function speakWithBrowser(text, isWord = false) {
+            if ('speechSynthesis' in window) {
+                speechSynthesis.cancel();
+                
+                const speakNow = () => {
+                    let textToSpeak = text;
+                    
+                    if (isWord && currentIndex < words.length) {
+                        const wordData = words[currentIndex];
+                        if (selectedLang === 'ur') {
+                            textToSpeak = `آمنہ، یہ ${wordData.urdu} ہے۔ ${text} کو لکھیں`;
+                        } else {
+                            textToSpeak = `Aamena, this is ${text}. Spell ${text}`;
+                        }
+                    }
+
+                    const utterance = new SpeechSynthesisUtterance(textToSpeak);
+                    utterance.rate = 0.75;
+                    utterance.pitch = 1.2;
+                    utterance.volume = 1.0;
+                    utterance.lang = selectedLang === 'ur' ? 'ur-PK' : 'en-US';
+
+                    const voices = speechSynthesis.getVoices();
+                    const matchVoice = voices.find(v => 
+                        v.lang.includes(selectedLang === 'ur' ? 'ur' : 'en') && 
+                        (v.name.includes('Female') || v.name.includes('Google'))
+                    ) || voices.find(v => v.lang.includes(selectedLang === 'ur' ? 'ur' : 'en'));
+                    
+                    if (matchVoice) utterance.voice = matchVoice;
+
+                    utterance.onstart = () => speakBtn.classList.add('speaking');
+                    utterance.onend = () => speakBtn.classList.remove('speaking');
+
+                    speechSynthesis.speak(utterance);
+                };
+
+                const voices = speechSynthesis.getVoices();
+                if (voices.length === 0) {
+                    speechSynthesis.onvoiceschanged = speakNow;
+                } else {
+                    speakNow();
+                }
+            }
+        }
+
+        function speak(text, isWord = false) {
+            if (ELEVEN_LABS_KEY) {
+                speakWithElevenLabs(text, isWord);
+            } else {
+                speakWithBrowser(text, isWord);
+            }
+        }
+
+        // Gemini API - Generate Words
+        async function generateNewWords(level) {
+            if (!GEMINI_API_KEY || GEMINI_API_KEY === 'AIzaSyBX8rSmB8k8VN2EbrsOlsaEW-7m8whkr70' || isGeneratingWords) {
+                return;
+            }
+
+            isGeneratingWords = true;
+            console.log('🤖 Generating new words...');
+
+            const difficultyMap = {
+                1: "simple 3-letter CVC words like CAT, DOG, PIG, BIG, SUN, CUP, BED, FOX",
+                2: "4-letter words like FAST, JUMP, HELP, LAMP, DESK, MILK, FISH",
+                3: "4-5 letter words like PLAN, CLAP, SNAP, BRING, STAMP, PLANT",
+                4: "5-6 letter words like CRAFT, SMART, BLEND, SPRING, FRIEND"
+            };
+
+            const prompt = `Create exactly 10 new ${difficultyMap[level]} for a children's spelling game.
+
+CRITICAL: Return ONLY a JSON array, no other text:
+[
+{"word":"CAT","emoji":"🐱","urdu":"کَیٹ"},
+{"word":"DOG","emoji":"🐕","urdu":"ڈاگ"}
+]
+
+Requirements:
+- Child-appropriate words only
+- Each needs: word (UPPERCASE), emoji, urdu (Urdu pronunciation)
+- NO explanations, NO markdown, ONLY the JSON array`;
+
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: prompt }] }],
+                        generationConfig: {
+                            temperature: 0.9,
+                            maxOutputTokens: 1500
+                        }
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API error: ${response.status}`);
+                }
+
+                const data = await response.json();
+                
+                if (data.candidates?.[0]?.content?.parts?.[0]?.text) {
+                    let text = data.candidates[0].content.parts[0].text;
+                    text = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+                    
+                    const jsonMatch = text.match(/\[[\s\S]*\]/);
+                    
+                    if (jsonMatch) {
+                        const newWords = JSON.parse(jsonMatch[0]);
+                        
+                        const validWords = newWords.filter(w => 
+                            w.word && w.emoji && w.urdu && 
+                            w.word.length >= 2 && w.word.length <= 8
+                        );
+                        
+                        if (validWords.length > 0) {
+                            validWords.forEach(w => {
+                                w.aiGenerated = true;
+                                w.word = w.word.toUpperCase();
+                            });
+                            
+                            words = [...words, ...validWords];
+                            console.log(`✨ Added ${validWords.length} AI words!`);
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Word generation error:', error);
+            } finally {
+                isGeneratingWords = false;
+            }
+        }
+
+        function playSuccessSound() {
+            const notes = [[523.25,0.15],[659.25,0.15],[783.99,0.15],[1046.50,0.3]];
+            notes.forEach((note, idx) => {
+                const [freq, dur] = note;
+                const osc = audioContext.createOscillator();
+                const gain = audioContext.createGain();
+                osc.connect(gain);
+                gain.connect(audioContext.destination);
+                osc.frequency.setValueAtTime(freq, audioContext.currentTime + idx * 0.15);
+                osc.type = 'triangle';
+                gain.gain.setValueAtTime(0.3, audioContext.currentTime + idx * 0.15);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + idx * 0.15 + dur);
+                osc.start(audioContext.currentTime + idx * 0.15);
+                osc.stop(audioContext.currentTime + idx * 0.15 + dur);
+            });
+        }
+
+        function shuffle(arr) {
+            const shuffled = [...arr];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        async function loadWord(index) {
+            if (index >= words.length - 3 && GEMINI_API_KEY && GEMINI_API_KEY !== 'AIzaSyBX8rSmB8k8VN2EbrsOlsaEW-7m8whkr70' && !isGeneratingWords) {
+                generateNewWords(difficultyLevel);
+            }
+
+            if (wordsCompleted > 0 && wordsCompleted % 10 === 0) {
+                difficultyLevel = Math.min(4, Math.floor(wordsCompleted / 10) + 1);
+            }
+
+            if (index >= words.length) {
+                successText.textContent = '🏆 You Did It Aamena! 🏆';
+                successOverlay.classList.add('show');
+                speak(selectedLang === 'ur' ? 
+                    'واہ آمنہ! بہت خوب!' : 
+                    'Congratulations Aamena!');
+                nextBtn.style.display = 'none';
+                return;
+            }
+
+            const wordData = words[index];
+            const word = wordData.word;
+            const wordLength = word.length;
+            
+            currentAttempt = new Array(wordLength).fill('');
+            successOverlay.classList.remove('show');
+
+            wordImage.textContent = wordData.emoji;
+            
+            let instructionText = `Spell: ${word}`;
+            if (wordData.aiGenerated) {
+                instructionText += ' <span class="ai-badge">AI✨</span>';
+            }
+            instruction.innerHTML = instructionText;
+            
+            progress.textContent = `Word ${index + 1} of ${words.length}`;
+
+            targetBoxes.innerHTML = '';
+            for (let i = 0; i < wordLength; i++) {
+                const box = document.createElement('div');
+                box.className = 'target-box';
+                box.dataset.position = i;
+                targetBoxes.appendChild(box);
+            }
+
+            const letters = word.split('');
+            const shuffledLetters = shuffle(letters);
+            if (shuffledLetters.join('') === word && wordLength > 2) {
+                shuffledLetters.reverse();
+            }
+
+            letterTiles.innerHTML = '';
+            shuffledLetters.forEach((letter, idx) => {
+                const tile = document.createElement('div');
+                tile.className = 'letter-tile';
+                tile.dataset.letter = letter;
+                tile.dataset.tileId = idx;
+                tile.textContent = letter;
+                
+                tile.addEventListener('touchstart', handleTouchStart, {passive: false});
+                tile.addEventListener('touchmove', handleTouchMove, {passive: false});
+                tile.addEventListener('touchend', handleTouchEnd, {passive: false});
+                tile.addEventListener('mousedown', handleMouseDown);
+                
+                letterTiles.appendChild(tile);
+            });
+
+            setTimeout(() => speak(word, true), 1000);
+        }
+
+        function handleTouchStart(e) {
+            e.preventDefault();
+            draggedTile = e.target;
+            draggedTile.classList.add('dragging');
+        }
+
+        function handleTouchMove(e) {
+            e.preventDefault();
+            if (!draggedTile) return;
+
+            const touch = e.touches[0];
+            const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
+
+            document.querySelectorAll('.target-box').forEach(box => 
+                box.classList.remove('drag-over')
+            );
+
+            if (elementBelow && elementBelow.classList.contains('target-box')) {
+                elementBelow.classList.add('drag-over');
+            }
+        }
+
+        function handleTouchEnd(e) {
+            e.preventDefault();
+            if (!draggedTile) return;
+
+            const touch = e.changedTouches[0];
+            const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
+
+            draggedTile.classList.remove('dragging');
+
+            if (elementBelow && elementBelow.classList.contains('target-box') && !elementBelow.textContent) {
+                const letter = draggedTile.dataset.letter;
+                const position = parseInt(elementBelow.dataset.position);
+
+                elementBelow.textContent = letter;
+                elementBelow.classList.add('filled');
+                elementBelow.classList.remove('drag-over');
+
+                currentAttempt[position] = letter;
+                draggedTile.classList.add('hidden');
+
+                checkWord();
+            }
+
+            document.querySelectorAll('.target-box').forEach(box => 
+                box.classList.remove('drag-over')
+            );
+
+            draggedTile = null;
+        }
+
+        function handleMouseDown(e) {
+            draggedTile = e.target;
+            draggedTile.classList.add('dragging');
+
+            const handleMouseMove = (e) => {
+                const elementBelow = document.elementFromPoint(e.clientX, e.clientY);
+                document.querySelectorAll('.target-box').forEach(box => 
+                    box.classList.remove('drag-over')
+                );
+                if (elementBelow && elementBelow.classList.contains('target-box')) {
+                    elementBelow.classList.add('drag-over');
+                }
+            };
+
+            const handleMouseUp = (e) => {
+                const elementBelow = document.elementFromPoint(e.clientX, e.clientY);
+                draggedTile.classList.remove('dragging');
+
+                if (elementBelow && elementBelow.classList.contains('target-box') && !elementBelow.textContent) {
+                    const letter = draggedTile.dataset.letter;
+                    const position = parseInt(elementBelow.dataset.position);
+
+                    elementBelow.textContent = letter;
+                    elementBelow.classList.add('filled');
+                    elementBelow.classList.remove('drag-over');
+
+                    currentAttempt[position] = letter;
+                    draggedTile.classList.add('hidden');
+
+                    checkWord();
+                }
+
+                document.querySelectorAll('.target-box').forEach(box => 
+                    box.classList.remove('drag-over')
+                );
+
+                document.removeEventListener('mousemove', handleMouseMove);
+                document.removeEventListener('mouseup', handleMouseUp);
+                draggedTile = null;
+            };
+
+            document.addEventListener('mousemove', handleMouseMove);
+            document.addEventListener('mouseup', handleMouseUp);
+        }
+
+        function checkWord() {
+            if (currentAttempt.every(letter => letter !== '')) {
+                const correctWord = words[currentIndex].word;
+                const wordData = words[currentIndex];
+
+                if (currentAttempt.join('') === correctWord) {
+                    setTimeout(() => {
+                        successText.textContent = `Perfect! 🎉`;
+                        successOverlay.classList.add('show');
+                        playSuccessSound();
+                        wordsCompleted++;
+
+                        setTimeout(() => {
+                            speak(selectedLang === 'ur' ? 
+                                `شاباش آمنہ! ${wordData.urdu} بالکل صحیح!` : 
+                                `Excellent Aamena! ${correctWord} is correct!`);
+                        }, 500);
+
+                        setTimeout(() => {
+                            successOverlay.classList.remove('show');
+                            currentIndex++;
+                            loadWord(currentIndex);
+                        }, 3500);
+                    }, 300);
+                } else {
+                    setTimeout(() => {
+                        document.querySelectorAll('.target-box').forEach(box => 
+                            box.style.animation = 'shake 0.5s'
+                        );
+                        
+                        speak(selectedLang === 'ur' ? 
+                            'دوبارہ کوشش کریں آمنہ!' : 
+                            'Try again Aamena!');
+
+                        setTimeout(() => resetWord(), 1000);
+                    }, 300);
+                }
+            }
+        }
+
+        function resetWord() {
+            const wordLength = words[currentIndex].word.length;
+            currentAttempt = new Array(wordLength).fill('');
+
+            document.querySelectorAll('.target-box').forEach(box => {
+                box.textContent = '';
+                box.classList.remove('filled');
+                box.style.animation = '';
+            });
+
+            document.querySelectorAll('.letter-tile').forEach(tile => 
+                tile.classList.remove('hidden')
+            );
+        }
+
+        startBtn.addEventListener('click', async () => {
+            menuScreen.classList.remove('active');
+            gameScreen.classList.add('active');
+
+            speak(selectedLang === 'ur' ? 
+                'السلام علیکم آمنہ! چلیں شروع کرتے ہیں!' : 
+                'Hello Aamena! Let\'s start learning!');
+
+            if (GEMINI_API_KEY && GEMINI_API_KEY !== 'AIzaSyBX8rSmB8k8VN2EbrsOlsaEW-7m8whkr70') {
+                setTimeout(() => generateNewWords(difficultyLevel), 2000);
+            }
+
+            loadWord(0);
+        });
+
+        speakBtn.addEventListener('click', () => {
+            if (currentIndex < words.length) {
+                speak(words[currentIndex].word, true);
+            }
+        });
+
+        nextBtn.addEventListener('click', () => {
+            currentIndex++;
+            loadWord(currentIndex);
+        });
+
+        if ('speechSynthesis' in window) {
+            speechSynthesis.getVoices();
+            window.speechSynthesis.onvoiceschanged = () => {
+                console.log('Voices loaded');
+            };
+        }
+    </script>
+</body>
+</html>
